@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: service-core-credit
+
+  config:
+    import: "configserver:http://localhost:8888"
+
+topic:
+  credit-created: credit.created
+  credit-updated: credit.updated
+  credit-paid: credit.paid
+  credit-charged: credit.charged
+  credit-overdue: credit.overdue
+  credit-deleted: credit.deleted
+
+  overdue-debt-request: overdue-debt.request
+  overdue-debt-response: overdue-debt.response
+
+  customer-request: customer.request
+  customer-response: customer.response
