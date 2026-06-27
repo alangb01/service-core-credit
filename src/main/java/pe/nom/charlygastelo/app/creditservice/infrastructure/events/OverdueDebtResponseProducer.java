@@ -23,19 +23,26 @@ public class OverdueDebtResponseProducer {
         try {
             String payload = avroJsonSerializer.serialize(event);
 
+            log.info("[OverdueDebtResponseProducer] Preparing to publish event. topic={}, correlationId={}, payload={}",
+                    overdueDebtResponseTopic, correlationId, payload);
+
             kafkaTemplate.send(overdueDebtResponseTopic, correlationId, payload)
                     .whenComplete((result, error) -> {
                         if (error != null) {
-                            log.error("Error publishing OverdueDebtResponseEvent", error);
-                        }
-                        else {
-                            log.info("OverdueDebtResponseEvent published. correlationId={}", correlationId);
+                            log.error("[OverdueDebtResponseProducer] Error publishing event. topic={}, correlationId={}, error={}",
+                                    overdueDebtResponseTopic, correlationId, error.getMessage(), error);
+                        } else {
+                            log.info("[OverdueDebtResponseProducer] Event published successfully. topic={}, correlationId={}, partition={}, offset={}",
+                                    overdueDebtResponseTopic,
+                                    correlationId,
+                                    result.getRecordMetadata().partition(),
+                                    result.getRecordMetadata().offset());
                         }
                     });
 
-        }
-        catch (Exception e) {
-            log.error("Error serializing OverdueDebtResponseEvent", e);
+        } catch (Exception e) {
+            log.error("[OverdueDebtResponseProducer] Error serializing OverdueDebtResponseEvent. correlationId={}, error={}",
+                    correlationId, e.getMessage(), e);
         }
     }
 }

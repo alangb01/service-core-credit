@@ -19,15 +19,26 @@ public class CustomerResponseConsumer {
 
     @KafkaListener(topics = "${topic.customer-response}", groupId = "credit-service")
     public void consumeCustomerResponse(String message) {
+
+        log.info("[CustomerResponseConsumer] Received raw message: {}", message);
+
         try {
             CustomerResponseEvent event =
                     objectMapper.readValue(message, CustomerResponseEvent.class);
 
+            log.info("[CustomerResponseConsumer] Parsed CustomerResponseEvent. correlationId={}, customerId={}, status={}",
+                    event.getCorrelationId(),
+                    event.getCustomerId(),
+                    event.getActive());
+
             registry.complete(event);
 
-        }
-        catch (Exception e) {
-            log.error("Error processing CustomerResponseEvent", e);
+            log.info("[CustomerResponseConsumer] Registry completed for correlationId={}",
+                    event.getCorrelationId());
+
+        } catch (Exception e) {
+            log.error("[CustomerResponseConsumer] Error processing CustomerResponseEvent. rawMessage={}, error={}",
+                    message, e.getMessage(), e);
         }
     }
 }

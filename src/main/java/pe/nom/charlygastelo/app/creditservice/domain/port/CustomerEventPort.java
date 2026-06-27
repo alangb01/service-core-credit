@@ -5,6 +5,6 @@ import pe.nom.charlygastelo.app.creditservice.domain.model.Customer;
 
 public interface CustomerEventPort {
 
-    Single<Customer> getById(String customerId);
+    Single<Customer> requestCustomerById(String customerId);
 
 }

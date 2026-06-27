@@ -23,7 +23,7 @@ public class CustomerKafkaClient implements CustomerEventPort {
     private final CustomerResponseRegistry registry;
 
     @Override
-    public Single<Customer> getById(String customerId) {
+    public Single<Customer> requestCustomerById(String customerId) {
         String correlationId = UUID.randomUUID().toString();
 
         CustomerRequestEvent event = CustomerRequestEvent.newBuilder()

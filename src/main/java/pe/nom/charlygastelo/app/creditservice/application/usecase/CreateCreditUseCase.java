@@ -28,7 +28,7 @@ public class CreateCreditUseCase {
 
         log.info("Starting credit creation process for customer {}", credit.customerId());
 
-        return customerEventPort.getById(credit.customerId())
+        return customerEventPort.requestCustomerById(credit.customerId())
                 .doOnSuccess(customer ->
                         log.info("Customer {} validated successfully", customer.id())
                 )
