@@ -1,5 +1,6 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.events;
 
+
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -14,19 +15,16 @@ import pe.nom.charlygastelo.app.shared.avro.dto.OverdueDebtRequestEvent;
 @RequiredArgsConstructor
 public class OverdueDebtRequestConsumer {
 
-    private final AvroJsonDeserializer avroJsonDeserializer;
+    private final AvroJsonDeserializer deserializer;
     private final CheckOverdueDebtUseCase useCase;
     private final OverdueDebtResponseProducer producer;
     private final CreditEventMapper mapper;
 
     @KafkaListener(topics = "${topic.overdue-debt-request}", groupId = "credit-service")
     public void consume(String message) {
-
-        log.info("[OverdueDebtRequestConsumer] Received raw message: {}", message);
-
         try {
             OverdueDebtRequestEvent event =
-                    avroJsonDeserializer.deserialize(
+                    deserializer.deserialize(
                             message,
                             OverdueDebtRequestEvent.class,
                             OverdueDebtRequestEvent.getClassSchema()
@@ -35,14 +33,14 @@ public class OverdueDebtRequestConsumer {
             String correlationId = event.getCorrelationId().toString();
             String customerId = event.getCustomerId().toString();
 
-            log.info("[OverdueDebtRequestConsumer] Parsed OverdueDebtRequestEvent. correlationId={}, customerId={}",
+            log.info("OverdueDebtRequestEvent received. correlationId={}, customerId={}",
                     correlationId, customerId);
 
             useCase.execute(customerId)
                     .subscribe(
                             hasDebt -> {
-                                log.info("[OverdueDebtRequestConsumer] Overdue debt check completed. customerId={}, hasDebt={}, correlationId={}",
-                                        customerId, hasDebt, correlationId);
+                                log.info("Overdue debt checked. customerId={}, hasDebt={}",
+                                        customerId, hasDebt);
 
                                 producer.publish(
                                         correlationId,
@@ -52,19 +50,19 @@ public class OverdueDebtRequestConsumer {
                                                 hasDebt
                                         )
                                 );
-
-                                log.info("[OverdueDebtRequestConsumer] OverdueDebtResponseEvent published. correlationId={}",
-                                        correlationId);
                             },
-                            error -> {
-                                log.error("[OverdueDebtRequestConsumer] Error checking overdue debt. customerId={}, correlationId={}, error={}",
-                                        customerId, correlationId, error.getMessage(), error);
-                            }
+                            error -> log.error(
+                                    "Error checking overdue debt. correlationId={}, customerId={}, reason={}",
+                                    correlationId,
+                                    customerId,
+                                    error.getMessage(),
+                                    error
+                            )
                     );
 
-        } catch (Exception e) {
-            log.error("[OverdueDebtRequestConsumer] Error processing OverdueDebtRequestEvent. rawMessage={}, error={}",
-                    message, e.getMessage(), e);
+        }
+        catch (Exception e) {
+            log.error("Error processing OverdueDebtRequestEvent", e);
         }
     }
 }

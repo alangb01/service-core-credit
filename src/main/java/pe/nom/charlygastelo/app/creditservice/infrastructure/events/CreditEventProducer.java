@@ -1,5 +1,7 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.events;
 
+import java.math.BigDecimal;
+
 
 import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,35 +44,80 @@ public class CreditEventProducer implements CreditEventProducerPort {
 
     @Override
     public Completable publishCreditCreated(Credit credit) {
-        return publish(creditCreatedTopic, credit.id(), mapper.toCreditCreatedEvent(credit));
+        log.info("Publishing CreditCreatedEvent. creditId={}, customerId={}",
+                credit.id(), credit.customerId());
+
+        return publish(
+                creditCreatedTopic,
+                credit.id(),
+                mapper.toCreditCreatedEvent(credit)
+        );
     }
 
     @Override
     public Completable publishCreditUpdated(Credit credit) {
-        return publish(creditUpdatedTopic, credit.id(), mapper.toCreditUpdatedEvent(credit));
+        log.info("Publishing CreditUpdatedEvent. creditId={}, customerId={}",
+                credit.id(), credit.customerId());
+
+        return publish(
+                creditUpdatedTopic,
+                credit.id(),
+                mapper.toCreditUpdatedEvent(credit)
+        );
     }
 
     @Override
-    public Completable publishCreditPaid(Credit credit) {
-        return publish(creditPaidTopic, credit.id(), mapper.toCreditPaidEvent(credit));
+    public Completable publishCreditPaid(Credit credit, BigDecimal amount) {
+        log.info("Publishing CreditPaidEvent. creditId={}, customerId={}, amount={}",
+                credit.id(), credit.customerId(), amount);
+
+        return publish(
+                creditPaidTopic,
+                credit.id(),
+                mapper.toCreditPaidEvent(credit, amount.doubleValue())
+        );
     }
 
     @Override
-    public Completable publishCreditCharged(Credit credit) {
-        return publish(creditChargedTopic, credit.id(), mapper.toCreditChargedEvent(credit));
+    public Completable publishCreditCharged(Credit credit, BigDecimal amount) {
+        log.info("Publishing CreditChargedEvent. creditId={}, customerId={}, amount={}",
+                credit.id(), credit.customerId(), amount);
+
+        return publish(
+                creditChargedTopic,
+                credit.id(),
+                mapper.toCreditChargedEvent(credit, amount.doubleValue())
+        );
     }
 
     @Override
     public Completable publishCreditOverdue(Credit credit) {
-        return publish(creditOverdueTopic, credit.id(), mapper.toCreditOverdueEvent(credit));
+        log.warn("Publishing CreditOverdueEvent. creditId={}, customerId={}",
+                credit.id(), credit.customerId());
+
+        return publish(
+                creditOverdueTopic,
+                credit.id(),
+                mapper.toCreditOverdueEvent(credit)
+        );
     }
 
     @Override
     public Completable publishCreditDeleted(Credit credit) {
-        return publish(creditDeletedTopic, credit.id(), mapper.toCreditDeletedEvent(credit));
+        log.info("Publishing CreditDeletedEvent. creditId={}", credit.id());
+
+        return publish(
+                creditDeletedTopic,
+                credit.id(),
+                mapper.toCreditDeletedEvent(credit)
+        );
     }
 
-    private Completable publish(String topic, String key, SpecificRecordBase event) {
+    private Completable publish(
+            String topic,
+            String key,
+            SpecificRecordBase event) {
+
         return Completable.create(emitter -> {
             try {
                 String payload = avroJsonSerializer.serialize(event);
@@ -78,16 +125,40 @@ public class CreditEventProducer implements CreditEventProducerPort {
                 kafkaTemplate.send(topic, key, payload)
                         .whenComplete((result, error) -> {
                             if (error != null) {
+                                log.error(
+                                        "Error publishing credit event. topic={}, key={}, eventClass={}, reason={}",
+                                        topic,
+                                        key,
+                                        event.getClass().getSimpleName(),
+                                        error.getMessage(),
+                                        error
+                                );
                                 emitter.onError(error);
+                                return;
                             }
-                            else {
-                                log.info("Credit event published. topic={}, key={}", topic, key);
-                                emitter.onComplete();
-                            }
+
+                            log.info(
+                                    "Credit event published successfully. topic={}, key={}, eventClass={}, partition={}, offset={}",
+                                    topic,
+                                    key,
+                                    event.getClass().getSimpleName(),
+                                    result.getRecordMetadata().partition(),
+                                    result.getRecordMetadata().offset()
+                            );
+
+                            emitter.onComplete();
                         });
 
             }
             catch (Exception e) {
+                log.error(
+                        "Error serializing credit event. topic={}, key={}, eventClass={}, reason={}",
+                        topic,
+                        key,
+                        event.getClass().getSimpleName(),
+                        e.getMessage(),
+                        e
+                );
                 emitter.onError(e);
             }
         });

@@ -29,10 +29,13 @@ public class CustomerRequestProducer {
             kafkaTemplate.send(customerRequestTopic, correlationId, payload)
                     .whenComplete((result, error) -> {
                         if (error != null) {
-                            log.error("[CustomerRequestProducer] Error sending event. topic={}, correlationId={}, error={}",
+                            log.error("[CustomerRequestProducer] Error sending event. topic={}, correlationId={}, " +
+                                            "error={}",
                                     customerRequestTopic, correlationId, error.getMessage(), error);
-                        } else {
-                            log.info("[CustomerRequestProducer] Event sent successfully. topic={}, correlationId={}, partition={}, offset={}",
+                        }
+                        else {
+                            log.info("[CustomerRequestProducer] Event sent successfully. topic={}, correlationId={}, " +
+                                            "partition={}, offset={}",
                                     customerRequestTopic,
                                     correlationId,
                                     result.getRecordMetadata().partition(),
@@ -40,7 +43,8 @@ public class CustomerRequestProducer {
                         }
                     });
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("[CustomerRequestProducer] Error serializing CustomerRequestEvent. correlationId={}, error={}",
                     correlationId, e.getMessage(), e);
         }
