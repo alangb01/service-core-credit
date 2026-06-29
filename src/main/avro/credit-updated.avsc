@@ -1,0 +1,19 @@
+{
+  "type": "record",
+  "namespace": "pe.nom.charlygastelo.app.shared.avro.dto",
+  "name": "CreditUpdatedEvent",
+  "fields": [
+    { "name": "eventId", "type": "string" },
+    { "name": "eventType", "type": "string", "default": "CREDIT_UPDATED" },
+    { "name": "occurredAt", "type": "string" },
+    { "name": "version", "type": "string", "default": "1.0" },
+    { "name": "source", "type": "string", "default": "credit-service" },
+
+    { "name": "creditId", "type": "string" },
+    { "name": "customerId", "type": "string" },
+    { "name": "creditType", "type": "string" },
+    { "name": "creditLimit", "type": "double" },
+    { "name": "balance", "type": "double" },
+    { "name": "status", "type": "string" }
+  ]
+}

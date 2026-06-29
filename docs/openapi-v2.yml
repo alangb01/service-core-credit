@@ -1,0 +1,48 @@
+openapi: 3.0.3
+info:
+  title: Credit Service API
+  version: v2
+  description: Credit product management - Project II.
+
+paths:
+  /customers/{customerId}/overdue-debt:
+    get:
+      summary: Check if customer has overdue debt
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Overdue debt status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverdueDebtResponse'
+
+  /credits/{id}/report:
+    get:
+      summary: Get credit report by date range
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: from
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Report generated
+
+components:
+  schemas:
+    OverdueDebtResponse:
+      type: object
+      properties:
+        customerId: { type: string }
+        hasOverdueDebt: { type: boolean }

@@ -3,17 +3,8 @@ package pe.nom.charlygastelo.app.creditservice.infrastructure.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import pe.nom.charlygastelo.app.creditservice.application.usecase.ChargeCreditCardUseCase;
-import pe.nom.charlygastelo.app.creditservice.application.usecase.CheckOverdueDebtUseCase;
-import pe.nom.charlygastelo.app.creditservice.application.usecase.CreateCreditUseCase;
-import pe.nom.charlygastelo.app.creditservice.application.usecase.DeleteCreditUseCase;
-import pe.nom.charlygastelo.app.creditservice.application.usecase.GetCreditUseCase;
-import pe.nom.charlygastelo.app.creditservice.application.usecase.ListCreditsUseCase;
-import pe.nom.charlygastelo.app.creditservice.application.usecase.PayCreditUseCase;
-import pe.nom.charlygastelo.app.creditservice.application.usecase.UpdateCreditUseCase;
-import pe.nom.charlygastelo.app.creditservice.domain.port.CreditEventProducerPort;
-import pe.nom.charlygastelo.app.creditservice.domain.port.CreditRepositoryPort;
-import pe.nom.charlygastelo.app.creditservice.domain.port.CustomerEventPort;
+import pe.nom.charlygastelo.app.creditservice.application.usecase.*;
+import pe.nom.charlygastelo.app.creditservice.domain.port.*;
 
 @Configuration
 public class BeanConfig {
@@ -96,4 +87,18 @@ public class BeanConfig {
         return new CheckOverdueDebtUseCase(repository);
     }
 
+    @Bean
+    public ProcessCreditTransactionUseCase processCreditTransactionUseCase(
+            PayCreditUseCase payCreditUseCase,
+            ChargeCreditCardUseCase chargeCreditCardUseCase,
+            AccountDebitEventPort accountDebitEventPort,
+            TransactionEventPort transactionEventPort) {
+
+        return new ProcessCreditTransactionUseCase(
+                payCreditUseCase,
+                chargeCreditCardUseCase,
+                accountDebitEventPort,
+                transactionEventPort
+        );
+    }
 }

@@ -1,0 +1,115 @@
+openapi: 3.0.3
+info:
+  title: Credit Service API
+  version: v1
+  description: Credit product management for banking system - Project I.
+
+paths:
+  /credits:
+    get:
+      summary: List all credits
+      responses:
+        '200':
+          description: List of credits
+    post:
+      summary: Create credit (personal or business)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditCreateRequest'
+      responses:
+        '201':
+          description: Credit created
+
+  /credits/{id}:
+    get:
+      summary: Get credit by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Credit found
+    put:
+      summary: Update credit
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Credit updated
+    delete:
+      summary: Delete credit
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Credit deleted
+
+  /customers/{customerId}/credits:
+    get:
+      summary: List credits of a customer
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Customer credits
+
+  /credits/{id}/payments:
+    post:
+      summary: Register a credit payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditPaymentRequest'
+      responses:
+        '200':
+          description: Payment registered
+
+components:
+  schemas:
+    Credit:
+      type: object
+      properties:
+        id: { type: string }
+        customerId: { type: string }
+        type: { $ref: '#/components/schemas/CreditType' }
+        amount: { type: number }
+        balance: { type: number }
+        status: { $ref: '#/components/schemas/CreditStatus' }
+
+    CreditCreateRequest:
+      type: object
+      required: [customerId, type, amount]
+      properties:
+        customerId: { type: string }
+        type: { $ref: '#/components/schemas/CreditType' }
+        amount: { type: number }
+
+    CreditPaymentRequest:
+      type: object
+      required: [amount]
+      properties:
+        amount: { type: number }
+
+    CreditType:
+      type: string
+      enum: [PERSONAL, BUSINESS]
+
+    CreditStatus:
+      type: string
+      enum: [ACTIVE, CLOSED, OVERDUE]

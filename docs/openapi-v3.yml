@@ -1,0 +1,41 @@
+openapi: 3.0.3
+info:
+  title: Credit Service API
+  version: v3
+  description: Credit product management - Project III.
+
+paths:
+  /credits/{id}/payments/third-party:
+    post:
+      summary: Register a third-party credit payment
+      description: Allows a customer to pay another customer's credit.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThirdPartyPaymentRequest'
+      responses:
+        '200':
+          description: Third-party payment registered
+
+  /customers/{customerId}/overdue-debt:
+    get:
+      summary: Check overdue debt (mandatory for product acquisition)
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Overdue debt status
+
+components:
+  schemas:
+    ThirdPartyPaymentRequest:
+      type: object
+      required: [payerCustomerId, amount]
+      properties:
+        payerCustomerId: { type: string }
+        amount: { type: number }

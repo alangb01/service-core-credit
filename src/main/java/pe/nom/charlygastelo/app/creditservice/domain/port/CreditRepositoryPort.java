@@ -24,5 +24,8 @@ public interface CreditRepositoryPort {
 
     Single<Boolean> existsOverdueDebtByCustomerId(String customerId);
 
+    Single<Boolean> hasActiveCreditCard(String customerId);
+
+
     Completable deleteById(String id);
 }

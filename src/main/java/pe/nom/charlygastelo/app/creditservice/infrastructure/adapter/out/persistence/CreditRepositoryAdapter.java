@@ -9,6 +9,7 @@ import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
+import pe.nom.charlygastelo.app.creditservice.domain.model.CreditStatus;
 import pe.nom.charlygastelo.app.creditservice.domain.model.CreditType;
 import pe.nom.charlygastelo.app.creditservice.domain.port.CreditRepositoryPort;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.persistence.CreditPersistenceMapper;
@@ -79,5 +80,17 @@ public class CreditRepositoryAdapter implements CreditRepositoryPort {
         return RxJava3Adapter.monoToCompletable(
                 repository.deleteById(id)
         );
+    }
+
+    @Override
+    public Single<Boolean> hasActiveCreditCard(String customerId) {
+
+        return findByCustomerId(customerId)
+                .filter(credit ->
+                        credit.type() == CreditType.CREDIT_CARD
+                                && credit.status() == CreditStatus.ACTIVE
+                )
+                .isEmpty()
+                .map(empty -> !empty);
     }
 }
