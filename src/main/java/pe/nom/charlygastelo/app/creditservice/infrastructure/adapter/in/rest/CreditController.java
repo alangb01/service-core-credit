@@ -1,7 +1,6 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest;
 
-
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,12 +9,16 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import pe.nom.charlygastelo.app.creditservice.application.usecase.*;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.CreateCreditRequest;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.CreditChargeRequest;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.CreditPaymentRequest;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.UpdateCreditRequest;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.mapper.CreditRestMapper;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.request.*;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.response.CreditResponse;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.response.CreditResponse;
 
 @RestController
 @RequestMapping("/credits")
+@SecurityRequirement(name = "bearerAuth")
 @RequiredArgsConstructor
 public class CreditController {
 
@@ -37,6 +40,7 @@ public class CreditController {
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public Single<CreditResponse> findById(@PathVariable String id) {
         return getCreditUseCase.byId(id)
                 .map(mapper::toResponse)
@@ -44,18 +48,21 @@ public class CreditController {
     }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public Flowable<CreditResponse> findAll() {
         return listCreditsUseCase.all()
                 .map(mapper::toResponse);
     }
 
     @GetMapping("/customer/{customerId}")
+    @ResponseStatus(HttpStatus.OK)
     public Flowable<CreditResponse> findByCustomer(@PathVariable String customerId) {
         return listCreditsUseCase.byCustomer(customerId)
                 .map(mapper::toResponse);
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public Single<CreditResponse> update(
             @PathVariable String id,
             @RequestBody UpdateCreditRequest request) {

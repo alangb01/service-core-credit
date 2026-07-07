@@ -1,13 +1,36 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import pe.nom.charlygastelo.app.creditservice.application.usecase.*;
 import pe.nom.charlygastelo.app.creditservice.domain.port.*;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.cache.RedisCreditCacheAdapter;
 
 @Configuration
 public class BeanConfig {
+    @Bean
+    @Primary
+    public ReactiveRedisTemplate<String, String> reactiveRedisTemplate(
+            ReactiveRedisConnectionFactory factory) {
+
+        RedisSerializationContext<String, String> context =
+                RedisSerializationContext
+                        .<String, String>newSerializationContext(
+                                new StringRedisSerializer()
+                        )
+                        .value(new StringRedisSerializer())
+                        .build();
+
+        return new ReactiveRedisTemplate<>(factory, context);
+    }
+
 
     @Bean
     public CreateCreditUseCase createCreditUseCase(
@@ -23,10 +46,18 @@ public class BeanConfig {
     }
 
     @Bean
-    public GetCreditUseCase getCreditUseCase(
-            CreditRepositoryPort repository) {
+    public CreditCachePort creditCachePort(
+            ReactiveRedisTemplate<String, String> redis,
+            ObjectMapper mapper) {
 
-        return new GetCreditUseCase(repository);
+        return new RedisCreditCacheAdapter(redis, mapper);
+    }
+
+    @Bean
+    public GetCreditUseCase getCreditUseCase(
+            CreditRepositoryPort repository, CreditCachePort cache) {
+
+        return new GetCreditUseCase(repository, cache);
     }
 
     @Bean
@@ -72,11 +103,13 @@ public class BeanConfig {
     @Bean
     public ChargeCreditCardUseCase chargeCreditCardUseCase(
             CreditRepositoryPort repository,
-            CreditEventProducerPort producer) {
+            CreditEventProducerPort producer,
+            CreditCachePort cache) {
 
         return new ChargeCreditCardUseCase(
                 repository,
-                producer
+                producer,
+                cache
         );
     }
 

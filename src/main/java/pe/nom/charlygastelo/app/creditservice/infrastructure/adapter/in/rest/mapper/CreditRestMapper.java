@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
 import pe.nom.charlygastelo.app.creditservice.domain.model.CreditStatus;
 import pe.nom.charlygastelo.app.creditservice.domain.model.CreditType;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.request.CreateCreditRequest;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.request.UpdateCreditRequest;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.response.CreditResponse;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.CreateCreditRequest;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.UpdateCreditRequest;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.response.CreditResponse;
 
 @Component
 public class CreditRestMapper {

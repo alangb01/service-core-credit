@@ -28,7 +28,7 @@ public class CreateCreditUseCase {
 
         log.info("Starting credit creation process for customer {}", credit.customerId());
 
-        return customerEventPort.requestCustomerById(credit.customerId())
+        return customerEventPort.getById(credit.customerId())
                 .doOnSuccess(customer ->
                         log.info("Customer {} validated successfully", customer.id())
                 )
@@ -42,7 +42,7 @@ public class CreateCreditUseCase {
                     if (!customer.active()) {
                         log.warn("Customer {} is inactive", customer.id());
                         return Single.error(
-                                new CustomerInactiveException("Customer is inactive")
+                                new BusinessRuleException("Customer is inactive")
                         );
                     }
 
@@ -111,40 +111,50 @@ public class CreateCreditUseCase {
                 customer.id(),
                 credit.type());
 
-        if (customer.isPersonal() && credit.type() == CreditType.PERSONAL) {
+        if (customer.isPersonal()) {
+            if (credit.type() == CreditType.PERSONAL) {
 
-            return repository.findByCustomerIdAndType(customer.id(), CreditType.PERSONAL)
-                    .isEmpty()
-                    .doOnSuccess(isEmpty ->
-                            log.debug("Existing personal credit validation. customer={}, available={}",
-                                    customer.id(),
-                                    isEmpty)
-                    )
-                    .flatMap(isEmpty -> {
-                        if (!isEmpty) {
+                return repository.findByCustomerIdAndType(
+                                customer.id(), CreditType.PERSONAL
+                        )
+                        .isEmpty()
+                        .doOnSuccess(isEmpty ->
+                                log.debug("Existing personal credit validation. customer={}, available={}",
+                                        customer.id(),
+                                        isEmpty)
+                        )
+                        .flatMap(isEmpty -> {
+                            if (!isEmpty) {
 
-                            log.warn("Customer {} already has a personal credit",
+                                log.warn("Customer {} already has a personal credit",
+                                        customer.id());
+
+                                return Single.error(
+                                        new BusinessRuleException(
+                                                "Personal customer can have only one personal credit"
+                                        )
+                                );
+                            }
+
+                            log.info("Credit rules validated successfully for customer {}",
                                     customer.id());
 
-                            return Single.error(
-                                    new BusinessRuleException(
-                                            "Personal customer can have only one personal credit"
-                                    )
-                            );
-                        }
+                            return Single.just(credit);
+                        })
+                        .doOnError(error ->
+                                log.error("Error validating credit rules for customer {}: {}",
+                                        customer.id(),
+                                        error.getMessage(),
+                                        error)
+                        );
+            }
 
-                        log.info("Credit rules validated successfully for customer {}",
-                                customer.id());
-
-                        return Single.just(credit);
-                    })
-                    .doOnError(error ->
-                            log.error("Error validating credit rules for customer {}: {}",
-                                    customer.id(),
-                                    error.getMessage(),
-                                    error)
-                    );
+            if (credit.type() == CreditType.BUSINESS) {
+                log.error("Error validating credit rules for customer {}: {}",customer.id(),"Personal customer can't create credit business");
+                return Single.error(new BusinessRuleException("Personal customer can't create credit business"));
+            }
         }
+
 
         log.info("No additional credit rules required for customer {}", customer.id());
 
