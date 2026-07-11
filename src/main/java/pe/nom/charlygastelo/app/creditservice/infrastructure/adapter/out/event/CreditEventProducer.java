@@ -1,13 +1,10 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
 
 import java.math.BigDecimal;
-
-
 import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-
 import io.reactivex.rxjava3.core.Completable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +17,7 @@ import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.m
 @RequiredArgsConstructor
 public class CreditEventProducer implements CreditEventProducerPort {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final AvroJsonSerializer avroJsonSerializer;
+    private final KafkaTemplate<String, SpecificRecordBase> kafkaTemplate;
     private final CreditEventMapper mapper;
 
     @Value("${topic.credit-created}")
@@ -120,9 +116,8 @@ public class CreditEventProducer implements CreditEventProducerPort {
 
         return Completable.create(emitter -> {
             try {
-                String payload = avroJsonSerializer.serialize(event);
 
-                kafkaTemplate.send(topic, key, payload)
+                kafkaTemplate.send(topic, key, event)
                         .whenComplete((result, error) -> {
                             if (error != null) {
                                 log.error(

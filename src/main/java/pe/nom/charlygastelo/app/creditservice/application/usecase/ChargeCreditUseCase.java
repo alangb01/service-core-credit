@@ -1,11 +1,11 @@
 package pe.nom.charlygastelo.app.creditservice.application.usecase;
 
-import java.math.BigDecimal;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import pe.nom.charlygastelo.app.creditservice.domain.exception.BusinessRuleException;
 import pe.nom.charlygastelo.app.creditservice.domain.exception.CreditNotFoundException;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
@@ -14,14 +14,17 @@ import pe.nom.charlygastelo.app.creditservice.domain.port.CreditCachePort;
 import pe.nom.charlygastelo.app.creditservice.domain.port.CreditEventProducerPort;
 import pe.nom.charlygastelo.app.creditservice.domain.port.CreditRepositoryPort;
 
+import java.math.BigDecimal;
+
 /**
  * Use case responsible for processing credit card charges.
  * Applies business rules, updates balances, publishes domain events,
  * and integrates reactive Redis cache with safe fallback.
  */
+@Service
 @RequiredArgsConstructor
 @Slf4j
-public class ChargeCreditCardUseCase {
+public class ChargeCreditUseCase {
 
     private final CreditRepositoryPort repository;
     private final CreditEventProducerPort producer;
@@ -156,11 +159,11 @@ public class ChargeCreditCardUseCase {
      */
     private Single<Credit> validateCreditCard(Credit credit, BigDecimal amount) {
 
-        if (credit.type() != CreditType.CREDIT_CARD) {
+        if (credit.type() == CreditType.CREDIT_CARD) {
             log.warn("[ChargeCreditCardUseCase] RULE_VIOLATION credit type mismatch. creditId={}, " +
-                            "expected=CREDIT_CARD, actual={}",
+                            "expected=PERSONAL O BUSINESS, actual={}",
                     credit.id(), credit.type());
-            return Single.error(new BusinessRuleException("Credit is not a credit card"));
+            return Single.error(new BusinessRuleException("Credit is credit card"));
         }
 
         if (credit.availableBalance().compareTo(amount) < 0) {

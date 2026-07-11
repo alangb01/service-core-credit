@@ -1,20 +1,18 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import pe.nom.charlygastelo.app.creditservice.application.usecase.*;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.CreateCreditRequest;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.CreditChargeRequest;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.CreditPaymentRequest;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.UpdateCreditRequest;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.mapper.CreditRestMapper;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.response.CreditResponse;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.mapper.CreditRestMapper;
 
 @RestController
 @RequestMapping("/credits")
@@ -54,13 +52,6 @@ public class CreditController {
                 .map(mapper::toResponse);
     }
 
-    @GetMapping("/customer/{customerId}")
-    @ResponseStatus(HttpStatus.OK)
-    public Flowable<CreditResponse> findByCustomer(@PathVariable String customerId) {
-        return listCreditsUseCase.byCustomer(customerId)
-                .map(mapper::toResponse);
-    }
-
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Single<CreditResponse> update(
@@ -77,26 +68,33 @@ public class CreditController {
         return deleteCreditUseCase.execute(id);
     }
 
-    @PostMapping("/{id}/payments")
-    public Single<CreditResponse> pay(
-            @PathVariable String id,
-            @RequestBody CreditPaymentRequest request) {
+//    @PostMapping("/{id}/payments")
+//    public Single<CreditResponse> pay(
+//            @PathVariable String id,
+//            @RequestBody CreditPaymentRequest request) {
+//
+//        return payCreditUseCase.execute(id, request.amount())
+//                .map(mapper::toResponse);
+//    }
+//
+//    @PostMapping("/{id}/charges")
+//    public Single<CreditResponse> charge(
+//            @PathVariable String id,
+//            @RequestBody CreditChargeRequest request) {
+//
+//        return chargeCreditCardUseCase.execute(id, request.amount())
+//                .map(mapper::toResponse);
+//    }
 
-        return payCreditUseCase.execute(id, request.amount())
-                .map(mapper::toResponse);
-    }
+//    @GetMapping("/customer/{customerId}/overdue-debt")
+//    public Single<Boolean> hasOverdueDebt(@PathVariable String customerId) {
+//        return checkOverdueDebtUseCase.execute(customerId);
+//    }
 
-    @PostMapping("/{id}/charges")
-    public Single<CreditResponse> charge(
-            @PathVariable String id,
-            @RequestBody CreditChargeRequest request) {
+    @GetMapping("/{id}/balance")
+    public Single<ResponseEntity<CreditResponse>> balance(
+            @PathVariable String id) {
 
-        return chargeCreditCardUseCase.execute(id, request.amount())
-                .map(mapper::toResponse);
-    }
-
-    @GetMapping("/customer/{customerId}/overdue-debt")
-    public Single<Boolean> hasOverdueDebt(@PathVariable String customerId) {
-        return checkOverdueDebtUseCase.execute(customerId);
+        return Single.error(new RuntimeException("Not implemented"));
     }
 }

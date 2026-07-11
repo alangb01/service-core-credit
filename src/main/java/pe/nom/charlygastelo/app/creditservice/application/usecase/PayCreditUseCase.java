@@ -1,7 +1,6 @@
 package pe.nom.charlygastelo.app.creditservice.application.usecase;
 
 import java.math.BigDecimal;
-
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;

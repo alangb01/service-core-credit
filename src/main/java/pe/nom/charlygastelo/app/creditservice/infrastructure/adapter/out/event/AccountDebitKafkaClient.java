@@ -3,9 +3,7 @@ package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
-
 import org.springframework.stereotype.Component;
-
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

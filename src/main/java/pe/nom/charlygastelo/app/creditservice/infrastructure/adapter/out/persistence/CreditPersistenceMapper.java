@@ -1,9 +1,7 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.persistence;
 
 import org.springframework.stereotype.Component;
-
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.persistence.CreditDocument;
 
 @Component
 public class CreditPersistenceMapper {

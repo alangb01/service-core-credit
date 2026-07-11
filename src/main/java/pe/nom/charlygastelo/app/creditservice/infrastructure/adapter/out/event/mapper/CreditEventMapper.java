@@ -2,9 +2,7 @@ package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.
 
 import java.time.Instant;
 import java.util.UUID;
-
 import org.springframework.stereotype.Component;
-
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
 import pe.nom.charlygastelo.app.shared.avro.dto.CreditChargedEvent;
 import pe.nom.charlygastelo.app.shared.avro.dto.CreditCreatedEvent;

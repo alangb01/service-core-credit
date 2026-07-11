@@ -1,11 +1,9 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.client;
 
 import java.math.BigDecimal;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.client.dto.CreateCardConsumptionRequest;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.client.dto.CreateCreditPaymentRequest;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.client.dto.CreateDisbursementRequest;

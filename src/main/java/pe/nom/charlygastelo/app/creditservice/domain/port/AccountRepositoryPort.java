@@ -1,9 +1,8 @@
 package pe.nom.charlygastelo.app.creditservice.domain.port;
 
+import java.math.BigDecimal;
 import io.reactivex.rxjava3.core.Single;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Account;
-
-import java.math.BigDecimal;
 
 public interface AccountRepositoryPort {
 

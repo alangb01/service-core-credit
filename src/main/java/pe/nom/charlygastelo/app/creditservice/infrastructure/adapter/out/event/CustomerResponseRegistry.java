@@ -3,10 +3,8 @@ package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleEmitter;
 import pe.nom.charlygastelo.app.creditservice.domain.exception.CustomerNotFoundException;

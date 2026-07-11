@@ -2,7 +2,6 @@ package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.persis
 
 
 import org.springframework.stereotype.Repository;
-
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
@@ -12,8 +11,6 @@ import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
 import pe.nom.charlygastelo.app.creditservice.domain.model.CreditStatus;
 import pe.nom.charlygastelo.app.creditservice.domain.model.CreditType;
 import pe.nom.charlygastelo.app.creditservice.domain.port.CreditRepositoryPort;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.persistence.CreditPersistenceMapper;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.persistence.CreditReactiveRepository;
 import reactor.adapter.rxjava.RxJava3Adapter;
 
 @Repository

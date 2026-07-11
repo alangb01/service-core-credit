@@ -1,10 +1,10 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
 
 
+import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.shared.avro.dto.AccountDebitRequestEvent;
@@ -14,8 +14,7 @@ import pe.nom.charlygastelo.app.shared.avro.dto.AccountDebitRequestEvent;
 @RequiredArgsConstructor
 public class AccountDebitRequestProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final AvroJsonSerializer avroJsonSerializer;
+    private final KafkaTemplate<String, SpecificRecordBase> kafkaTemplate;
 
     @Value("${topic.account-debit-request}")
     private String accountDebitRequestTopic;
@@ -25,7 +24,7 @@ public class AccountDebitRequestProducer {
             AccountDebitRequestEvent event) {
 
         try {
-            String payload = avroJsonSerializer.serialize(event);
+
 
             log.info(
                     "Sending AccountDebitRequestEvent. topic={}, correlationId={}, transactionId={}, accountId={}",
@@ -35,7 +34,7 @@ public class AccountDebitRequestProducer {
                     event.getAccountId()
             );
 
-            kafkaTemplate.send(accountDebitRequestTopic, correlationId, payload)
+            kafkaTemplate.send(accountDebitRequestTopic, correlationId, event)
                     .whenComplete((result, error) -> {
                         if (error != null) {
                             log.error(

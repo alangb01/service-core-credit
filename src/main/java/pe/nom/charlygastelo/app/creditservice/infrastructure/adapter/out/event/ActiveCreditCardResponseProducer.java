@@ -2,12 +2,12 @@ package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
 
 import java.time.Instant;
 import java.util.UUID;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.shared.avro.dto.ActiveCreditCardResponseEvent;
 
 @Slf4j
@@ -15,8 +15,7 @@ import pe.nom.charlygastelo.app.shared.avro.dto.ActiveCreditCardResponseEvent;
 @RequiredArgsConstructor
 public class ActiveCreditCardResponseProducer {
 
-    private final KafkaTemplate<String,String> kafkaTemplate;
-    private final AvroJsonSerializer serializer;
+    private final KafkaTemplate<String, SpecificRecordBase> kafkaTemplate;
 
     @Value("${topic.active-credit-card-response}")
     private String topic;
@@ -43,7 +42,7 @@ public class ActiveCreditCardResponseProducer {
             kafkaTemplate.send(
                     topic,
                     correlationId,
-                    serializer.serialize(event)
+                    event
             );
 
             log.info(

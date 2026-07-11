@@ -1,6 +1,6 @@
 package pe.nom.charlygastelo.app.creditservice.domain.exception;
 
-public class CreditCacheException extends  RuntimeException{
+public class CreditCacheException extends RuntimeException {
     public CreditCacheException(String message) {
         super(message);
     }

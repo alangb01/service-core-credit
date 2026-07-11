@@ -1,10 +1,11 @@
-package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
+package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.event;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.creditservice.domain.port.CreditRepositoryPort;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.ActiveCreditCardResponseProducer;
 import pe.nom.charlygastelo.app.shared.avro.dto.ActiveCreditCardRequestEvent;
 
 @Slf4j
@@ -12,23 +13,15 @@ import pe.nom.charlygastelo.app.shared.avro.dto.ActiveCreditCardRequestEvent;
 @RequiredArgsConstructor
 public class ActiveCreditCardRequestConsumer {
 
-    private final AvroJsonDeserializer deserializer;
     private final CreditRepositoryPort repository;
     private final ActiveCreditCardResponseProducer producer;
 
     @KafkaListener(
             topics = "${topic.active-credit-card-request}",
             groupId = "credit-service")
-    public void consume(String message) {
+    public void consume(ActiveCreditCardRequestEvent event) {
 
         try {
-
-            ActiveCreditCardRequestEvent event =
-                    deserializer.deserialize(
-                            message,
-                            ActiveCreditCardRequestEvent.class,
-                            ActiveCreditCardRequestEvent.getClassSchema()
-                    );
 
             String correlationId = event.getCorrelationId().toString();
             String customerId = event.getCustomerId().toString();

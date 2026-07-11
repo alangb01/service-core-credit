@@ -2,9 +2,7 @@ package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
 
 import java.time.Instant;
 import java.util.UUID;
-
 import org.springframework.stereotype.Component;
-
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Customer;

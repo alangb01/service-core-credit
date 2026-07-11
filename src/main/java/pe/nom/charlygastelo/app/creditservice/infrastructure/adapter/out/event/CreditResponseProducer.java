@@ -1,10 +1,9 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
 
-
+import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.shared.avro.dto.CreditResponseEvent;
@@ -14,17 +13,16 @@ import pe.nom.charlygastelo.app.shared.avro.dto.CreditResponseEvent;
 @RequiredArgsConstructor
 public class CreditResponseProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final AvroJsonSerializer serializer;
+    private final KafkaTemplate<String, SpecificRecordBase> kafkaTemplate;
 
     @Value("${topic.credit-response}")
     private String creditResponseTopic;
 
     public void publish(String correlationId, CreditResponseEvent event) {
         try {
-            String payload = serializer.serialize(event);
 
-            kafkaTemplate.send(creditResponseTopic, correlationId, payload)
+
+            kafkaTemplate.send(creditResponseTopic, correlationId, event)
                     .whenComplete((result, error) -> {
                         if (error != null) {
                             log.error("Error publishing CreditResponseEvent. correlationId={}, reason={}",

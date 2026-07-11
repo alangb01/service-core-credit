@@ -1,9 +1,9 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
 
+import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.shared.avro.dto.CustomerRequestEvent;
@@ -13,20 +13,18 @@ import pe.nom.charlygastelo.app.shared.avro.dto.CustomerRequestEvent;
 @RequiredArgsConstructor
 public class CustomerRequestProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final AvroJsonSerializer avroJsonSerializer;
+    private final KafkaTemplate<String, SpecificRecordBase> kafkaTemplate;
 
     @Value("${topic.customer-request}")
     private String customerRequestTopic;
 
     public void send(String correlationId, CustomerRequestEvent event) {
         try {
-            String payload = avroJsonSerializer.serialize(event);
 
             log.info("[CustomerRequestProducer] Preparing to send event. topic={}, correlationId={}, payload={}",
-                    customerRequestTopic, correlationId, payload);
+                    customerRequestTopic, correlationId, event);
 
-            kafkaTemplate.send(customerRequestTopic, correlationId, payload)
+            kafkaTemplate.send(customerRequestTopic, correlationId, event)
                     .whenComplete((result, error) -> {
                         if (error != null) {
                             log.error("[CustomerRequestProducer] Error sending event. topic={}, correlationId={}, " +

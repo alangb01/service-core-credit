@@ -1,7 +1,6 @@
 package pe.nom.charlygastelo.app.creditservice.domain.port;
 
 import java.math.BigDecimal;
-
 import io.reactivex.rxjava3.core.Completable;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
 

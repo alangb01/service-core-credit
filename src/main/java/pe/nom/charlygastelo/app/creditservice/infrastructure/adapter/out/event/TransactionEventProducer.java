@@ -2,12 +2,10 @@ package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
 
 import java.time.Instant;
 import java.util.UUID;
-
 import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-
 import io.reactivex.rxjava3.core.Completable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +19,7 @@ import pe.nom.charlygastelo.app.shared.avro.dto.TransactionFailedEvent;
 @RequiredArgsConstructor
 public class TransactionEventProducer implements TransactionEventPort {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final AvroJsonSerializer avroJsonSerializer;
+    private final KafkaTemplate<String, SpecificRecordBase> kafkaTemplate;
 
     @Value("${topic.transaction-completed}")
     private String transactionCompletedTopic;
@@ -84,9 +81,8 @@ public class TransactionEventProducer implements TransactionEventPort {
 
         return Completable.create(emitter -> {
             try {
-                String payload = avroJsonSerializer.serialize(event);
 
-                kafkaTemplate.send(topic, key, payload)
+                kafkaTemplate.send(topic, key, event)
                         .whenComplete((result, error) -> {
                             if (error != null) {
                                 log.error(

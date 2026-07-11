@@ -1,9 +1,7 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
 
-
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.creditservice.application.usecase.CheckOverdueDebtUseCase;
@@ -15,20 +13,14 @@ import pe.nom.charlygastelo.app.shared.avro.dto.OverdueDebtRequestEvent;
 @RequiredArgsConstructor
 public class OverdueDebtRequestConsumer {
 
-    private final AvroJsonDeserializer deserializer;
     private final CheckOverdueDebtUseCase useCase;
     private final OverdueDebtResponseProducer producer;
     private final CreditEventMapper mapper;
 
     @KafkaListener(topics = "${topic.overdue-debt-request}", groupId = "credit-service")
-    public void consume(String message) {
+    public void consume(OverdueDebtRequestEvent event) {
         try {
-            OverdueDebtRequestEvent event =
-                    deserializer.deserialize(
-                            message,
-                            OverdueDebtRequestEvent.class,
-                            OverdueDebtRequestEvent.getClassSchema()
-                    );
+
 
             String correlationId = event.getCorrelationId().toString();
             String customerId = event.getCustomerId().toString();

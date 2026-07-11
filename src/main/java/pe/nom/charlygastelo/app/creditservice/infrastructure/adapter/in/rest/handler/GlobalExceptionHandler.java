@@ -11,7 +11,7 @@ import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessRuleException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessException(Exception ex){
+    public ResponseEntity<ErrorResponse> handleBusinessException(Exception ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse("CONFLICT", ex.getMessage()));
     }

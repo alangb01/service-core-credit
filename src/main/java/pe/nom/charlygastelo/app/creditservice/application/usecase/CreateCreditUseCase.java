@@ -5,7 +5,6 @@ import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.creditservice.domain.exception.BusinessRuleException;
-import pe.nom.charlygastelo.app.creditservice.domain.exception.CustomerInactiveException;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
 import pe.nom.charlygastelo.app.creditservice.domain.model.CreditType;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Customer;
@@ -150,7 +149,8 @@ public class CreateCreditUseCase {
             }
 
             if (credit.type() == CreditType.BUSINESS) {
-                log.error("Error validating credit rules for customer {}: {}",customer.id(),"Personal customer can't create credit business");
+                log.error("Error validating credit rules for customer {}: {}", customer.id(),
+                        "Personal customer can't create credit business");
                 return Single.error(new BusinessRuleException("Personal customer can't create credit business"));
             }
         }

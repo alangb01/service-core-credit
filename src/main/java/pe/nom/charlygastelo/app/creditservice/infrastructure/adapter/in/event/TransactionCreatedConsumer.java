@@ -1,8 +1,7 @@
-package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
+package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.event;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.creditservice.application.usecase.ProcessCreditTransactionUseCase;
@@ -13,28 +12,22 @@ import pe.nom.charlygastelo.app.shared.avro.dto.TransactionCreatedEvent;
 @RequiredArgsConstructor
 public class TransactionCreatedConsumer {
 
-    private final AvroJsonDeserializer deserializer;
     private final ProcessCreditTransactionUseCase useCase;
 
     @KafkaListener(
             topics = "${topic.transaction-created}",
             groupId = "credit-service")
-    public void consume(String message) {
+    public void consume(TransactionCreatedEvent event) {
         log.debug("TransactionCreatedEvent raw message received by credit-service");
 
         try {
-            TransactionCreatedEvent event =
-                    deserializer.deserialize(
-                            message,
-                            TransactionCreatedEvent.class,
-                            TransactionCreatedEvent.getClassSchema()
-                    );
 
             String transactionType = event.getTransactionType().toString();
 
             boolean supported =
                     "CREDIT_PAYMENT".equalsIgnoreCase(transactionType)
-                            || "CREDIT_CARD_CHARGE".equalsIgnoreCase(transactionType);
+                            || "CREDIT_CARD_CHARGE".equalsIgnoreCase(transactionType)
+                        || "CREDIT_WITHDRAWL".equalsIgnoreCase(transactionType);
 
             if (!supported) {
                 log.info(

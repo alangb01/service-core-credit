@@ -1,14 +1,13 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import pe.nom.charlygastelo.app.creditservice.application.usecase.*;
 import pe.nom.charlygastelo.app.creditservice.domain.port.*;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.cache.RedisCreditCacheAdapter;
@@ -120,18 +119,5 @@ public class BeanConfig {
         return new CheckOverdueDebtUseCase(repository);
     }
 
-    @Bean
-    public ProcessCreditTransactionUseCase processCreditTransactionUseCase(
-            PayCreditUseCase payCreditUseCase,
-            ChargeCreditCardUseCase chargeCreditCardUseCase,
-            AccountDebitEventPort accountDebitEventPort,
-            TransactionEventPort transactionEventPort) {
 
-        return new ProcessCreditTransactionUseCase(
-                payCreditUseCase,
-                chargeCreditCardUseCase,
-                accountDebitEventPort,
-                transactionEventPort
-        );
-    }
 }

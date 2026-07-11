@@ -2,9 +2,7 @@ package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.ma
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Component;
-
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
 import pe.nom.charlygastelo.app.creditservice.domain.model.CreditStatus;
 import pe.nom.charlygastelo.app.creditservice.domain.model.CreditType;

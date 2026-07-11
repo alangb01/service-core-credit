@@ -1,10 +1,10 @@
-package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event;
+package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.event;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.AccountDebitResponseRegistry;
 import pe.nom.charlygastelo.app.shared.avro.dto.AccountDebitResponseEvent;
 
 @Slf4j
@@ -12,22 +12,15 @@ import pe.nom.charlygastelo.app.shared.avro.dto.AccountDebitResponseEvent;
 @RequiredArgsConstructor
 public class AccountDebitResponseConsumer {
 
-    private final AvroJsonDeserializer deserializer;
     private final AccountDebitResponseRegistry registry;
 
     @KafkaListener(
             topics = "${topic.account-debit-response}",
             groupId = "credit-service")
-    public void consume(String message) {
+    public void consume(AccountDebitResponseEvent event) {
         log.debug("AccountDebitResponseEvent raw message received");
 
         try {
-            AccountDebitResponseEvent event =
-                    deserializer.deserialize(
-                            message,
-                            AccountDebitResponseEvent.class,
-                            AccountDebitResponseEvent.getClassSchema()
-                    );
 
             log.info(
                     "AccountDebitResponseEvent received. correlationId={}, transactionId={}, success={}, reason={}",
