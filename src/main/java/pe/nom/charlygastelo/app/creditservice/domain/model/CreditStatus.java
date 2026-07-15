@@ -7,6 +7,8 @@ public enum CreditStatus {
 
     ACTIVE,
 
+    PARTIALLY_PAID,
+
     PAID,
 
     CLOSED,

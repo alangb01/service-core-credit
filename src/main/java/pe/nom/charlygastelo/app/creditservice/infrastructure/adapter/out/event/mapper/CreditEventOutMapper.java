@@ -1,20 +1,19 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.mapper;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
+import pe.nom.charlygastelo.app.creditservice.application.command.CreditPaymentCommand;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
-import pe.nom.charlygastelo.app.shared.avro.dto.CreditChargedEvent;
-import pe.nom.charlygastelo.app.shared.avro.dto.CreditCreatedEvent;
-import pe.nom.charlygastelo.app.shared.avro.dto.CreditDeletedEvent;
-import pe.nom.charlygastelo.app.shared.avro.dto.CreditOverdueEvent;
-import pe.nom.charlygastelo.app.shared.avro.dto.CreditPaidEvent;
-import pe.nom.charlygastelo.app.shared.avro.dto.CreditResponseEvent;
-import pe.nom.charlygastelo.app.shared.avro.dto.CreditUpdatedEvent;
-import pe.nom.charlygastelo.app.shared.avro.dto.OverdueDebtResponseEvent;
+import pe.nom.charlygastelo.app.creditservice.domain.model.Transaction;
+import pe.nom.charlygastelo.app.shared.avro.dto.*;
+
 
 @Component
-public class CreditEventMapper {
+@Slf4j
+public class CreditEventOutMapper {
 
     public CreditCreatedEvent toCreditCreatedEvent(Credit credit) {
         return CreditCreatedEvent.newBuilder()
@@ -72,7 +71,7 @@ public class CreditEventMapper {
                 .setCreditId(value(credit.id()))
                 .setCustomerId(value(credit.customerId()))
                 .setAmount(amount)
-                .setAvailableBalance(credit.availableBalance().doubleValue())
+                .setAvailableBalance(credit.available().doubleValue())
                 .build();
     }
 
@@ -119,7 +118,7 @@ public class CreditEventMapper {
                 .setStatus(credit.status().name())
                 .setCreditLimit(credit.creditLimit().doubleValue())
                 .setBalance(credit.balance().doubleValue())
-                .setAvailableBalance(credit.availableBalance().doubleValue())
+                .setAvailableBalance(credit.available().doubleValue())
                 .setOverdue(credit.overdue())
                 .build();
     }
@@ -167,5 +166,84 @@ public class CreditEventMapper {
 
     private String value(String value) {
         return value == null ? "" : value;
+    }
+
+    public CreditInterestOccurredEvent toCreditInterestChargeEvent(String creditId, String interestAmount, String cycle) {
+        return CreditInterestOccurredEvent.newBuilder()
+                .setEventId(UUID.randomUUID().toString())
+                .setEventType("CREDIT_INTEREST_CALCULATED")
+                .setOccurredAt(Instant.now().toString())
+                .setVersion("1.0")
+                .setSource("credit-service")
+
+                .setCreditId(value(creditId))
+
+                .build();
+    }
+
+
+
+    public CreditPaymentCommand toCommand(AccountWithdrawOccurredEvent event) {
+        return new CreditPaymentCommand(
+                event.getTransactionId().toString(),
+                event.getCreditId().toString(),
+                event.getCustomerId().toString(),
+                BigDecimal.valueOf(event.getAmount()),
+                event.getAccountId().toString(),
+                event.getReason().toString()
+        );
+    }
+
+    public CreditPaymentOccurredEvent toCreditPaymentOccurred(Credit credit, Transaction tx) {
+        return CreditPaymentOccurredEvent.newBuilder()
+                .setEventId(UUID.randomUUID().toString())
+                .setEventType("CREDIT_PAYMENT_OCCURRED")
+                .setOccurredAt(Instant.now().toString())
+                .setVersion("1.0")
+                .setSource("credit-service")
+
+                .setTransactionId(tx.id())
+                .setCreditId(credit.id())
+                .setCustomerId(tx.customerId())
+
+                .setAmount(tx.amount().doubleValue())
+                .setBalance(credit.balance().doubleValue())
+                .setAvailable(credit.available().doubleValue())
+
+                .build();
+    }
+
+    public CreditWithdrawOccurredEvent toCreditWithdrawOccurred(Credit credit, Transaction tx) {
+
+        return CreditWithdrawOccurredEvent.newBuilder()
+                .setEventId(UUID.randomUUID().toString())
+                .setEventType("CREDIT_WITHDRAW_OCCURRED")
+                .setOccurredAt(Instant.now().toString())
+                .setVersion("1.0")
+                .setSource("credit-service")
+
+
+                .setTransactionId(tx.id())
+                .setCreditId(credit.id())
+                .setCustomerId(tx.customerId())
+
+                .setAmount(tx.amount().doubleValue())
+                .setBalance(credit.balance().doubleValue())
+                .setAvailable(credit.available().doubleValue())
+
+                .build();
+    }
+
+
+    public CreditInterestOccurredEvent toInterestCalculatedOccurred(Credit credit, Transaction tx) {
+        return CreditInterestOccurredEvent.newBuilder()
+                .setEventId(UUID.randomUUID().toString())
+                .setEventType("CREDIT_INTEREST_CALCULATED")
+                .setOccurredAt(Instant.now().toString())
+                .setVersion("1.0")
+                .setSource("credit-service")
+
+
+                .build();
     }
 }

@@ -6,19 +6,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.CompletableSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
-import pe.nom.charlygastelo.app.creditservice.domain.port.CreditEventProducerPort;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.mapper.CreditEventMapper;
+import pe.nom.charlygastelo.app.creditservice.domain.model.Transaction;
+import pe.nom.charlygastelo.app.creditservice.domain.port.event.CreditLedgerEventProducerPort;
+import pe.nom.charlygastelo.app.creditservice.domain.port.event.CreditManagementEventProducerPort;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.mapper.CreditEventOutMapper;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CreditEventProducer implements CreditEventProducerPort {
+public class CreditEventProducer implements CreditManagementEventProducerPort, CreditLedgerEventProducerPort {
 
     private final KafkaTemplate<String, SpecificRecordBase> kafkaTemplate;
-    private final CreditEventMapper mapper;
+    private final CreditEventOutMapper mapper;
 
     @Value("${topic.credit-created}")
     private String creditCreatedTopic;
@@ -37,6 +40,22 @@ public class CreditEventProducer implements CreditEventProducerPort {
 
     @Value("${topic.credit-deleted}")
     private String creditDeletedTopic;
+
+
+
+    // LEDGER
+    @Value("${topic.credit-withdraw-occurred}")
+    private String creditWithdrawOccurredTopic;
+
+    @Value("${topic.credit-payment-occurred}")
+    private String creditPaymentOccuredTopic;
+
+
+    @Value("${topic.credit-interest-charge-occurred}")
+    private String creditInterestChargeOccurredTopic;
+
+
+
 
     @Override
     public Completable publishCreditCreated(Credit credit) {
@@ -63,30 +82,6 @@ public class CreditEventProducer implements CreditEventProducerPort {
     }
 
     @Override
-    public Completable publishCreditPaid(Credit credit, BigDecimal amount) {
-        log.info("Publishing CreditPaidEvent. creditId={}, customerId={}, amount={}",
-                credit.id(), credit.customerId(), amount);
-
-        return publish(
-                creditPaidTopic,
-                credit.id(),
-                mapper.toCreditPaidEvent(credit, amount.doubleValue())
-        );
-    }
-
-    @Override
-    public Completable publishCreditCharged(Credit credit, BigDecimal amount) {
-        log.info("Publishing CreditChargedEvent. creditId={}, customerId={}, amount={}",
-                credit.id(), credit.customerId(), amount);
-
-        return publish(
-                creditChargedTopic,
-                credit.id(),
-                mapper.toCreditChargedEvent(credit, amount.doubleValue())
-        );
-    }
-
-    @Override
     public Completable publishCreditOverdue(Credit credit) {
         log.warn("Publishing CreditOverdueEvent. creditId={}, customerId={}",
                 credit.id(), credit.customerId());
@@ -109,53 +104,69 @@ public class CreditEventProducer implements CreditEventProducerPort {
         );
     }
 
-    private Completable publish(
-            String topic,
-            String key,
-            SpecificRecordBase event) {
+    @Override
+    public Completable publishInterestCalculated(Credit credit, BigDecimal interest, String cycle) {
+        log.info("Publishing Credit Interest Event. creditId={}", credit.id());
 
-        return Completable.create(emitter -> {
-            try {
+        return publish(
+                creditInterestChargeOccurredTopic,
+                credit.id(),
+                mapper.toCreditInterestChargeEvent(credit.id(), String.valueOf(interest), cycle)
+        );
+    }
 
+    @Override
+    public Completable publishCreditPaymentOccurred(Credit credit, Transaction tx) {
+
+        log.info("Publishing Credit payment occurred Event. creditId={}", credit.id());
+        log.debug("[CREDIT] Serializing event. credit={}, transaction={}", credit, tx);
+        return publish(
+                creditPaymentOccuredTopic,
+                credit.id(),
+                mapper.toCreditPaymentOccurred(credit, tx)
+        );
+    }
+
+    @Override
+    public Completable publishCreditWithdrawOccurred(Credit credit, Transaction tx) {
+
+        log.info("Publishing Credit withdraw occurred Event. creditId={}", credit.id());
+        log.debug("[CREDIT] Serializing event. credit={}, transaction={}", credit, tx);
+        return publish(
+                creditWithdrawOccurredTopic,
+                credit.id(),
+                mapper.toCreditWithdrawOccurred(credit, tx)
+        );
+    }
+
+    @Override
+    public CompletableSource publishInterestChargeOccurred(Credit credit, Transaction tx) {
+        log.info("Publishing Credit interest charge occurred Event. creditId={}", credit.id());
+        return publish(
+                creditInterestChargeOccurredTopic,
+                credit.id(),
+                mapper.toCreditWithdrawOccurred(credit, tx)
+        );
+    }
+
+
+    private Completable publish(String topic, String key, SpecificRecordBase event) {
+        log.info("[CREDIT-EVENT] Sending event. topic={}, key={}", topic, key);
+        return Completable.fromFuture(
                 kafkaTemplate.send(topic, key, event)
                         .whenComplete((result, error) -> {
                             if (error != null) {
-                                log.error(
-                                        "Error publishing credit event. topic={}, key={}, eventClass={}, reason={}",
-                                        topic,
-                                        key,
-                                        event.getClass().getSimpleName(),
-                                        error.getMessage(),
-                                        error
-                                );
-                                emitter.onError(error);
-                                return;
+                                log.error("[CREDIT-EVENT] Error sending event. topic={}, key={}, reason={}",
+                                        topic, key, error.getMessage(), error);
                             }
-
-                            log.info(
-                                    "Credit event published successfully. topic={}, key={}, eventClass={}, partition={}, offset={}",
-                                    topic,
-                                    key,
-                                    event.getClass().getSimpleName(),
-                                    result.getRecordMetadata().partition(),
-                                    result.getRecordMetadata().offset()
-                            );
-
-                            emitter.onComplete();
-                        });
-
-            }
-            catch (Exception e) {
-                log.error(
-                        "Error serializing credit event. topic={}, key={}, eventClass={}, reason={}",
-                        topic,
-                        key,
-                        event.getClass().getSimpleName(),
-                        e.getMessage(),
-                        e
-                );
-                emitter.onError(e);
-            }
-        });
+                            else {
+                                log.info("[CREDIT-EVENT] Event sent successfully. topic={}, key={}, " +
+                                                "partition={}, offset={}",
+                                        topic, key,
+                                        result.getRecordMetadata().partition(),
+                                        result.getRecordMetadata().offset());
+                            }
+                        })
+        );
     }
 }

@@ -1,7 +1,6 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 public record CreateCreditRequest(
         String customerId,
@@ -11,5 +10,5 @@ public record CreateCreditRequest(
         BigDecimal balance,
         BigDecimal interestRate,
         Integer installments,
-        LocalDate dueDate
+        Integer billingCycleDay
 ) { }

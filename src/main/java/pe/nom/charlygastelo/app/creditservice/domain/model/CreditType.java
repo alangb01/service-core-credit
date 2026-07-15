@@ -5,8 +5,7 @@ package pe.nom.charlygastelo.app.creditservice.domain.model;
  */
 public enum CreditType {
     PERSONAL,
-
     BUSINESS,
-
+    REVOLVING,
     CREDIT_CARD
 }

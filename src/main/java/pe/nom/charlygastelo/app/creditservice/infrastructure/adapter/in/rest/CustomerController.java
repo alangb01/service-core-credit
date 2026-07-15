@@ -35,6 +35,6 @@ public class CustomerController {
     public Single<OverdueDebtResponse> hasOverdueDebt(@PathVariable String customerId) {
 
         return checkOverdueDebtUseCase.execute(customerId)
-                .map(hasDebt -> new OverdueDebtResponse(hasDebt));
+                .map(OverdueDebtResponse::new);
     }
 }

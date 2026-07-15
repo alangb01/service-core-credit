@@ -1,6 +1,7 @@
 package pe.nom.charlygastelo.app.creditservice.application.usecase;
 
 import java.util.List;
+import org.springframework.stereotype.Component;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import pe.nom.charlygastelo.app.creditservice.domain.port.CreditRepositoryPort;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class ListCreditsUseCase {
 
     private final CreditRepositoryPort repository;

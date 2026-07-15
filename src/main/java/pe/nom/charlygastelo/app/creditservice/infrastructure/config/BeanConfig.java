@@ -8,9 +8,12 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pe.nom.charlygastelo.app.creditservice.application.usecase.*;
-import pe.nom.charlygastelo.app.creditservice.domain.port.*;
+import pe.nom.charlygastelo.app.creditservice.domain.port.CreditCachePort;
+import pe.nom.charlygastelo.app.creditservice.domain.port.CreditRepositoryPort;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.cache.RedisCreditCacheAdapter;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.persistence.CreditPersistenceMapper;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.persistence.CreditReactiveRepository;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.persistence.CreditRepositoryAdapter;
 
 @Configuration
 public class BeanConfig {
@@ -31,18 +34,7 @@ public class BeanConfig {
     }
 
 
-    @Bean
-    public CreateCreditUseCase createCreditUseCase(
-            CreditRepositoryPort repository,
-            CreditEventProducerPort producer,
-            CustomerEventPort customerEventPort) {
 
-        return new CreateCreditUseCase(
-                repository,
-                producer,
-                customerEventPort
-        );
-    }
 
     @Bean
     public CreditCachePort creditCachePort(
@@ -53,71 +45,10 @@ public class BeanConfig {
     }
 
     @Bean
-    public GetCreditUseCase getCreditUseCase(
-            CreditRepositoryPort repository, CreditCachePort cache) {
-
-        return new GetCreditUseCase(repository, cache);
+    public CreditRepositoryPort creditRepositoryPort(
+            CreditReactiveRepository repository,
+            CreditPersistenceMapper mapper
+    ) {
+        return new CreditRepositoryAdapter(repository, mapper);
     }
-
-    @Bean
-    public ListCreditsUseCase listCreditsUseCase(
-            CreditRepositoryPort repository) {
-
-        return new ListCreditsUseCase(repository);
-    }
-
-    @Bean
-    public UpdateCreditUseCase updateCreditUseCase(
-            CreditRepositoryPort repository,
-            CreditEventProducerPort producer) {
-
-        return new UpdateCreditUseCase(
-                repository,
-                producer
-        );
-    }
-
-    @Bean
-    public DeleteCreditUseCase deleteCreditUseCase(
-            CreditRepositoryPort repository,
-            CreditEventProducerPort producer) {
-
-        return new DeleteCreditUseCase(
-                repository,
-                producer
-        );
-    }
-
-    @Bean
-    public PayCreditUseCase payCreditUseCase(
-            CreditRepositoryPort repository,
-            CreditEventProducerPort producer) {
-
-        return new PayCreditUseCase(
-                repository,
-                producer
-        );
-    }
-
-    @Bean
-    public ChargeCreditCardUseCase chargeCreditCardUseCase(
-            CreditRepositoryPort repository,
-            CreditEventProducerPort producer,
-            CreditCachePort cache) {
-
-        return new ChargeCreditCardUseCase(
-                repository,
-                producer,
-                cache
-        );
-    }
-
-    @Bean
-    public CheckOverdueDebtUseCase checkOverdueDebtUseCase(
-            CreditRepositoryPort repository) {
-
-        return new CheckOverdueDebtUseCase(repository);
-    }
-
-
 }

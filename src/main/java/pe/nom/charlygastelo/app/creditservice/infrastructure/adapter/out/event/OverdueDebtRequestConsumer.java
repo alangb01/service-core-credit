@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.creditservice.application.usecase.CheckOverdueDebtUseCase;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.mapper.CreditEventMapper;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.mapper.CreditEventOutMapper;
 import pe.nom.charlygastelo.app.shared.avro.dto.OverdueDebtRequestEvent;
 
 @Slf4j
@@ -15,7 +15,7 @@ public class OverdueDebtRequestConsumer {
 
     private final CheckOverdueDebtUseCase useCase;
     private final OverdueDebtResponseProducer producer;
-    private final CreditEventMapper mapper;
+    private final CreditEventOutMapper mapper;
 
     @KafkaListener(topics = "${topic.overdue-debt-request}", groupId = "credit-service")
     public void consume(OverdueDebtRequestEvent event) {

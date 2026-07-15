@@ -11,13 +11,17 @@ public class CreditPersistenceMapper {
         return CreditDocument.builder()
                 .id(domain.id())
                 .customerId(domain.customerId())
+                .productId(domain.productId())
                 .number(domain.number())
                 .type(domain.type())
                 .status(domain.status())
                 .creditLimit(domain.creditLimit())
                 .balance(domain.balance())
-                .availableBalance(domain.availableBalance())
+                .available(domain.available())
                 .interestRate(domain.interestRate())
+                .billingCycleDay(domain.billingCycleDay())
+                .nextBillingDate(domain.nextBillingDate())
+                .nextPaymentDate(domain.nextPaymentDate())
                 .installments(domain.installments())
                 .dueDate(domain.dueDate())
                 .overdue(domain.overdue())
@@ -31,13 +35,18 @@ public class CreditPersistenceMapper {
         return new Credit(
                 document.getId(),
                 document.getCustomerId(),
+                document.getProductId(),
                 document.getNumber(),
                 document.getType(),
                 document.getStatus(),
                 document.getCreditLimit(),
                 document.getBalance(),
-                document.getAvailableBalance(),
+                document.getAvailable(),
                 document.getInterestRate(),
+                document.getBillingCycleDay(),
+                document.getNextBillingDate(),
+                document.getNextPaymentDate(),
+
                 document.getInstallments(),
                 document.getDueDate(),
                 document.isOverdue(),

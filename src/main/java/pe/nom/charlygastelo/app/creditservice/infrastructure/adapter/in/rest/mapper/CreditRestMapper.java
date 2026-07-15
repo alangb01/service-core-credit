@@ -1,7 +1,7 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.mapper;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import org.springframework.stereotype.Component;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
 import pe.nom.charlygastelo.app.creditservice.domain.model.CreditStatus;
@@ -22,27 +22,35 @@ public class CreditRestMapper {
                 ? BigDecimal.ZERO
                 : request.creditLimit();
 
+        BigDecimal available = creditLimit.subtract(balance);
+
+
         return new Credit(
                 null,
                 request.customerId(),
+                null,
                 request.number(),
                 CreditType.valueOf(request.type()),
                 CreditStatus.ACTIVE,
                 creditLimit,
                 balance,
-                creditLimit.subtract(balance),
+                available,
                 request.interestRate(),
+                request.billingCycleDay(),
+                null,
+                null,
                 request.installments(),
-                request.dueDate(),
+                null,
                 false,
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                Instant.now(),
+                null
         );
     }
 
     public Credit toDomain(String id, UpdateCreditRequest request) {
         return new Credit(
                 id,
+                null,
                 null,
                 request.number(),
                 CreditType.valueOf(request.type()),
@@ -51,11 +59,14 @@ public class CreditRestMapper {
                 request.balance(),
                 request.availableBalance(),
                 request.interestRate(),
+                null,
+                null,
+                null,
                 request.installments(),
                 request.dueDate(),
                 request.overdue(),
                 null,
-                LocalDateTime.now()
+                Instant.now()
         );
     }
 
@@ -68,8 +79,11 @@ public class CreditRestMapper {
                 credit.status().name(),
                 credit.creditLimit(),
                 credit.balance(),
-                credit.availableBalance(),
+                credit.available(),
                 credit.interestRate(),
+                credit.billingCycleDay(),
+                credit.nextBillingDate(),
+                credit.nextPaymentDate(),
                 credit.installments(),
                 credit.dueDate(),
                 credit.overdue(),

@@ -28,4 +28,8 @@ public interface CreditRepositoryPort {
 
 
     Completable deleteById(String id);
+
+    Flowable<Credit> findAllActiveCredits();
+
+    Flowable<Credit> findAllCreditsWithBillingCycleDue();
 }

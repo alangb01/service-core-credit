@@ -1,7 +1,7 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
 
 public record UpdateCreditRequest(
         String number,
@@ -12,6 +12,6 @@ public record UpdateCreditRequest(
         BigDecimal availableBalance,
         BigDecimal interestRate,
         Integer installments,
-        LocalDate dueDate,
+        Instant dueDate,
         boolean overdue
 ) { }

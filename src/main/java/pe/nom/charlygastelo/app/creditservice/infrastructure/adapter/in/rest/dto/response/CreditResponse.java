@@ -1,8 +1,7 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.response;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record CreditResponse(
         String id,
@@ -14,9 +13,12 @@ public record CreditResponse(
         BigDecimal balance,
         BigDecimal availableBalance,
         BigDecimal interestRate,
+        Integer billingCycleDay,     // día de corte
+        Instant nextBillingDate,     // fecha de corte
+        Instant nextPaymentDate,     // fecha
         Integer installments,
-        LocalDate dueDate,
+        Instant dueDate,
         boolean overdue,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        Instant createdAt,
+        Instant updatedAt
 ) { }

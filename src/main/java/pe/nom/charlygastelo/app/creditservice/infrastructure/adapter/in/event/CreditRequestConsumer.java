@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.creditservice.domain.port.CreditRepositoryPort;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.CreditResponseProducer;
-import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.mapper.CreditEventMapper;
+import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.event.mapper.CreditEventOutMapper;
 import pe.nom.charlygastelo.app.shared.avro.dto.CreditRequestEvent;
 
 @Slf4j
@@ -16,7 +16,7 @@ public class CreditRequestConsumer {
 
     private final CreditRepositoryPort repository;
     private final CreditResponseProducer responseProducer;
-    private final CreditEventMapper mapper;
+    private final CreditEventOutMapper mapper;
 
     @KafkaListener(topics = "${topic.credit-request}", groupId = "credit-service")
     public void consume(CreditRequestEvent event) {

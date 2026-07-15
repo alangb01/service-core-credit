@@ -1,5 +1,11 @@
 package pe.nom.charlygastelo.app.creditservice.application.usecase;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import org.springframework.stereotype.Component;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
@@ -8,32 +14,41 @@ import pe.nom.charlygastelo.app.creditservice.domain.exception.BusinessRuleExcep
 import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
 import pe.nom.charlygastelo.app.creditservice.domain.model.CreditType;
 import pe.nom.charlygastelo.app.creditservice.domain.model.Customer;
-import pe.nom.charlygastelo.app.creditservice.domain.port.CreditEventProducerPort;
 import pe.nom.charlygastelo.app.creditservice.domain.port.CreditRepositoryPort;
 import pe.nom.charlygastelo.app.creditservice.domain.port.CustomerEventPort;
+import pe.nom.charlygastelo.app.creditservice.domain.port.event.CreditManagementEventProducerPort;
+
+
 
 /**
  * Caso de uso para crear solicitudes de productos crediticios.
  */
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class CreateCreditUseCase {
 
     private final CreditRepositoryPort repository;
-    private final CreditEventProducerPort producer;
+    private final CreditManagementEventProducerPort producer;
     private final CustomerEventPort customerEventPort;
 
     public Single<Credit> execute(Credit credit) {
 
         log.info("Starting credit creation process for customer {}", credit.customerId());
+        BigDecimal balance = credit.balance() == null ? BigDecimal.ZERO : credit.balance();
+        BigDecimal limit = credit.creditLimit() == null ? BigDecimal.ZERO : credit.creditLimit();
+        BigDecimal available = limit.subtract(balance);
 
-        return customerEventPort.getById(credit.customerId())
+        Instant now = Instant.now();
+        Credit finalCredit = calculateDueDate(credit);
+
+        return customerEventPort.getById(finalCredit.customerId())
                 .doOnSuccess(customer ->
                         log.info("Customer {} validated successfully", customer.id())
                 )
                 .doOnError(error ->
                         log.error("Error validating customer {}: {}",
-                                credit.customerId(),
+                                finalCredit.customerId(),
                                 error.getMessage(),
                                 error)
                 )
@@ -46,7 +61,7 @@ public class CreateCreditUseCase {
                     }
 
                     return validateNoOverdueDebt(credit.customerId())
-                            .andThen(validateCreditRules(customer, credit));
+                            .andThen(validateCreditRules(customer, finalCredit));
                 })
                 .flatMap(repository::save)
                 .doOnSuccess(saved ->
@@ -103,6 +118,54 @@ public class CreateCreditUseCase {
                                 error)
                 );
     }
+
+    private Credit calculateDueDate(Credit credit) {
+
+        Instant now = Instant.now();
+        Instant nextBillingDate = null;
+        Instant nextPaymentDate = null;
+        Instant dueDate = null;
+
+        switch (credit.type()) {
+
+            case PERSONAL:
+            case BUSINESS:
+                // No usan ciclo
+                dueDate = now.plus(30, ChronoUnit.DAYS);
+                break;
+
+            case REVOLVING:
+                if (credit.billingCycleDay() != null) {
+
+                    LocalDate today = LocalDate.now();
+                    LocalDate billing = today.withDayOfMonth(credit.billingCycleDay());
+
+                    // Si el día de corte ya pasó, se calcula para el próximo mes
+                    if (billing.isBefore(today)) {
+                        billing = billing.plusMonths(1);
+                    }
+
+                    nextBillingDate = billing.atStartOfDay(ZoneOffset.UTC).toInstant();
+
+                    // Fecha de pago = corte + 20 días
+                    nextPaymentDate = nextBillingDate.plus(20, ChronoUnit.DAYS);
+
+                    // Vencimiento = fecha de pago
+                    dueDate = nextPaymentDate;
+
+                }
+                else {
+                    // fallback si no envían billingCycleDay
+                    dueDate = now.plus(30, ChronoUnit.DAYS);
+                }
+                break;
+        }
+
+
+        return credit.withBillingInfo(nextBillingDate, nextPaymentDate, dueDate);
+
+    }
+
 
     private Single<Credit> validateCreditRules(Customer customer, Credit credit) {
 

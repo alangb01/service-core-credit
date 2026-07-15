@@ -1,7 +1,6 @@
 package pe.nom.charlygastelo.app.creditservice.domain.model;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 
 public record Transaction(
         String id,
@@ -11,7 +10,16 @@ public record Transaction(
         TransactionType type,
         BigDecimal amount,
         BigDecimal commission,
-        String description,
-        Instant timestamp
+        String description
 ) {
+    public void validateForWithdraw() {
+
+    }
+
+    public void validateForInterest() {
+
+    }
+
+    public void validateForPayment() {
+    }
 }

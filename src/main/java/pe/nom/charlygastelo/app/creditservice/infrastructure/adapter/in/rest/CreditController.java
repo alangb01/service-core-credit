@@ -9,6 +9,7 @@ import io.reactivex.rxjava3.core.Single;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import pe.nom.charlygastelo.app.creditservice.application.usecase.*;
+import pe.nom.charlygastelo.app.creditservice.domain.model.Credit;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.CreateCreditRequest;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.request.UpdateCreditRequest;
 import pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.in.rest.dto.response.CreditResponse;
@@ -25,15 +26,15 @@ public class CreditController {
     private final ListCreditsUseCase listCreditsUseCase;
     private final UpdateCreditUseCase updateCreditUseCase;
     private final DeleteCreditUseCase deleteCreditUseCase;
-    private final PayCreditUseCase payCreditUseCase;
-    private final ChargeCreditCardUseCase chargeCreditCardUseCase;
     private final CheckOverdueDebtUseCase checkOverdueDebtUseCase;
     private final CreditRestMapper mapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Single<CreditResponse> create(@RequestBody CreateCreditRequest request) {
-        return createCreditUseCase.execute(mapper.toDomain(request))
+        Credit credit = mapper.toDomain(request);
+
+        return createCreditUseCase.execute(credit)
                 .map(mapper::toResponse);
     }
 

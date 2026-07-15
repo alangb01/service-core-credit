@@ -1,8 +1,7 @@
 package pe.nom.charlygastelo.app.creditservice.infrastructure.adapter.out.persistence;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
@@ -26,6 +25,8 @@ public class CreditDocument {
 
     private String customerId;
 
+    private String productId;
+
     private String number;
 
     private CreditType type;
@@ -36,18 +37,23 @@ public class CreditDocument {
 
     private BigDecimal balance;
 
-    private BigDecimal availableBalance;
+    private BigDecimal available;
 
     private BigDecimal interestRate;
 
+    private Integer billingCycleDay;
+    private Instant nextBillingDate;     // fecha de corte
+    private Instant nextPaymentDate;     // fecha de pago
+
     private Integer installments;
 
-    private LocalDate dueDate;
+    private Instant dueDate;
 
     private boolean overdue;
 
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
+
 
 }
