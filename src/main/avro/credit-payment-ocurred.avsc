@@ -11,6 +11,7 @@
 
     { "name": "transactionId", "type": "string" },
     { "name": "creditId", "type": "string" },
+    { "name": "accountId", "type": "string" },
     { "name": "customerId", "type": "string" },
 
     { "name": "amount", "type": "double" },

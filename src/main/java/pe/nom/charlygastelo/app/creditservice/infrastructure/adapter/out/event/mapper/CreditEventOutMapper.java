@@ -195,6 +195,7 @@ public class CreditEventOutMapper {
     }
 
     public CreditPaymentOccurredEvent toCreditPaymentOccurred(Credit credit, Transaction tx) {
+
         return CreditPaymentOccurredEvent.newBuilder()
                 .setEventId(UUID.randomUUID().toString())
                 .setEventType("CREDIT_PAYMENT_OCCURRED")
@@ -204,6 +205,7 @@ public class CreditEventOutMapper {
 
                 .setTransactionId(tx.id())
                 .setCreditId(credit.id())
+                .setAccountId(tx.sourceProductId())
                 .setCustomerId(tx.customerId())
 
                 .setAmount(tx.amount().doubleValue())
@@ -222,9 +224,9 @@ public class CreditEventOutMapper {
                 .setVersion("1.0")
                 .setSource("credit-service")
 
-
                 .setTransactionId(tx.id())
                 .setCreditId(credit.id())
+                .setAccountId(tx.targetProductId())
                 .setCustomerId(tx.customerId())
 
                 .setAmount(tx.amount().doubleValue())
