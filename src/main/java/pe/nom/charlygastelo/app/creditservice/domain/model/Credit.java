@@ -224,8 +224,6 @@ public record Credit(
 
     public Credit debit(BigDecimal amount) {
 
-        System.out.println("this.available "+this.available+" amount "+amount);
-
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BusinessRuleException("Invalid debit amount");
         }
@@ -261,7 +259,7 @@ public record Credit(
 
     public Credit credit(BigDecimal amount) {
 
-        System.out.println("this.available "+this.available+" amount "+amount);
+
 
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BusinessRuleException("Invalid credit amount");
