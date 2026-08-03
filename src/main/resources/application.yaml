@@ -2,5 +2,5 @@ spring:
   application:
     name: service-core-credit
 
-  config:
-    import: "configserver:http://localhost:8888"
+#  config:
+#    import: "configserver:http://localhost:8888"

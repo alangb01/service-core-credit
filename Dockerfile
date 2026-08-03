@@ -26,13 +26,13 @@ FROM eclipse-temurin:17-jre
 WORKDIR /opt/app
 
 # Copia el JAR construido desde la fase build al runtime
-COPY --from=build /app/target/customer-service-*.jar app.jar
+COPY --from=build /app/target/credit-service-*.jar app.jar
 
 # Variable de entorno para pasar flags extra a la JVM (ej: GC, heap, logs)
 ENV JAVA_OPTS=""
 
 # Expone el puerto 8085 (se puede mapear desde docker-compose con SERVER_PORT)
-EXPOSE 8085
+#EXPOSE 8085
 
 # Comando de inicio: ejecuta la aplicación con posibles opciones de JVM
 ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar app.jar"]
